@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # 1. Ứng dụng NestJS của chúng ta
+  app:
+    build:
+      context: . # Build dựa trên Dockerfile ở thư mục hiện tại
+    ports:
+      - "3000:3000" # Ánh xạ cổng 3000 ra ngoài máy thật
+    env_file:
+      - .env # Đọc các biến cấu hình từ file .env (sẽ tạo ở bước sau)
+    depends_on:
+      - postgres
+      - redis
+
+  # 2. Cơ sở dữ liệu PostgreSQL
+  postgres:
+    image: postgres:15-alpine # Dùng image Postgres bản nhẹ
+    ports:
+      - "5432:5432"
+    environment:
+      # Lấy thông tin tài khoản từ file .env của app để đồng bộ
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+  # 3. Cache Redis
+  redis:
+    image: redis:7-alpine # Dùng image Redis bản nhẹ
+    ports:
+      - "6379:6379"
